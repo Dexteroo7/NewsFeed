@@ -13,6 +13,8 @@ import com.ayush.newsfeed.common.models.Category;
 import com.ayush.newsfeed.common.models.FeedItem;
 import com.squareup.picasso.Picasso;
 
+import java.nio.ByteBuffer;
+
 /**
  * Created by dexter on 10/05/16.
  */
@@ -38,18 +40,33 @@ public abstract class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
 //        holder.setPosition(position);
         final FeedItem feedItem = getItem(position);
+        int index;
+
+        final ByteBuffer imageUrlBuffer = feedItem.imageUrlAsByteBuffer();
+        final char[] imageUrl = new char[imageUrlBuffer.remaining()];
+        for (index = 0; index < imageUrl.length; index++)
+            imageUrl[index] = (char) imageUrlBuffer.get();
+
+        final ByteBuffer headingBuffer = feedItem.headingAsByteBuffer();
+        final char[] heading = new char[headingBuffer.remaining()];
+        for (index = 0; index < heading.length; index++)
+            heading[index] = (char) headingBuffer.get();
+
+        final ByteBuffer descriptionBuffer = feedItem.descriptionAsByteBuffer();
+        final char[] description = new char[descriptionBuffer.remaining()];
+        for (index = 0; index < description.length; index++)
+            description[index] = (char) descriptionBuffer.get();
 
         Picasso.with(holder.image.getContext())
-                .load(feedItem.imageUrl())
+                .load(String.valueOf(imageUrl))
                 .config(Bitmap.Config.RGB_565)
                 .fit()
                 .stableKey(feedItem.id() + "")
                 .into(holder.image);
 
-        holder.heading.setText(feedItem.heading());
-        holder.description.setText(feedItem.description());
-        holder.sourceDetails.setText(
-                Category.name(feedItem.category()) + " - " + combinationFormatter(feedItem.curatedOn()));
+        holder.heading.setText(heading, 0, heading.length);
+        holder.description.setText(description, 0, description.length);
+        holder.sourceDetails.setText(Category.name(feedItem.category()) + " - " + combinationFormatter(feedItem.curatedOn()));
     }
 
     public abstract FeedItem getItem(int position);

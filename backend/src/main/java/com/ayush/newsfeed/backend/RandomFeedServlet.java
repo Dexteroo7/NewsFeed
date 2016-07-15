@@ -25,7 +25,13 @@ public class RandomFeedServlet extends HttpServlet {
 
     private static final Logger LOGGER = Logger.getLogger(RandomFeedServlet.class.getName());
 
-    private static final char[] IMAGE_URL = "http://loremflickr.com/320/240/girl".toCharArray();
+    private static final ByteBuffer IMAGE_URL = ByteBuffer.wrap(new byte[]{
+            'h', 't', 't', 'p', ':', '/', '/',
+            'l', 'o', 'r', 'e', 'm', 'f', 'l',
+            'i', 'c', 'k', 'r', '.', 'c', 'o',
+            'm', '/', '3', '2', '0', '/', '2',
+            '4', '0', '/', 'g', 'i', 'r', 'l'
+    });
 
     private static final int DESCRIPTION_PARA_COUNT = 3; //around 3 paragraphs
     private static final int DESCRIPTION_SENTENCE_COUNT = 4; //around 4 sentences
@@ -72,19 +78,19 @@ public class RandomFeedServlet extends HttpServlet {
         final int feed = Feed.createFeed(bufferBuilder, feedItemsOffset);
         bufferBuilder.finish(feed);
 
-        final ByteBuffer toReturn = bufferBuilder.dataBuffer();
-        final Feed feedLog = Feed.getRootAsFeed(toReturn);
-        for (int index = 0; index < feedSize; index++) {
-
-            final FeedItem item = feedLog.feedItems(index);
-            LOGGER.info(item.heading());
-            LOGGER.info(item.description());
-            LOGGER.info(item.category() + "");
-            LOGGER.info(item.curatedOn() + "");
-            LOGGER.info(item.imageUrl() + "");
-            LOGGER.info(item.id() + "\n");
-        }
-        LOGGER.info(toReturn.toString());
+//        final ByteBuffer toReturn = bufferBuilder.dataBuffer();
+//        final Feed feedLog = Feed.getRootAsFeed(toReturn);
+//        for (int index = 0; index < feedSize; index++) {
+//
+//            final FeedItem item = feedLog.feedItems(index);
+//            LOGGER.info(item.heading());
+//            LOGGER.info(item.description());
+//            LOGGER.info(item.category() + "");
+//            LOGGER.info(item.curatedOn() + "");
+//            LOGGER.info(item.imageUrl() + "");
+//            LOGGER.info(item.id() + "\n");
+//        }
+//        LOGGER.info(toReturn.toString());
 
         resp.addHeader("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0, proxy-revalidate, no-transform, private"); //do not cache
         resp.addHeader("Feed-Count", feedSize + "");
