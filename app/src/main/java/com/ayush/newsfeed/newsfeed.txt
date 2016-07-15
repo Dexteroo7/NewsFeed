@@ -1,0 +1,25 @@
+namespace newsfeed;
+
+enum Category:byte {
+Entertainment = 0,
+News = 1,
+Technology = 2,
+Sports = 3,
+Knowledge = 4,
+Others = 5}
+
+table FeedItem {
+
+    id:long;
+    heading:string;
+    description:string;
+    curatedOn:long;
+    category:Category;
+    imageUrl:string;
+}
+
+table Feed {
+    feedItems:[FeedItem];
+}
+
+root_type Feed;
