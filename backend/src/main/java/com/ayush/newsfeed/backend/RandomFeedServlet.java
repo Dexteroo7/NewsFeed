@@ -15,8 +15,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static com.ayush.newsfeed.backend.loremipsum.RandomLoremGenerator.nextDocument;
-import static com.ayush.newsfeed.backend.loremipsum.RandomLoremGenerator.nextSentence;
+import static com.ayush.newsfeed.backend.loremipsum.RandomLoremGenerator.writeNextDocument;
+import static com.ayush.newsfeed.backend.loremipsum.RandomLoremGenerator.writeNextSentence;
 
 /**
  * Created by dexter on 26/05/2016.
@@ -48,31 +48,37 @@ public class RandomFeedServlet extends HttpServlet {
         final ByteBufferOutputStream byteArrayBuffer = new ByteBufferOutputStream();
 
         final int feedSize = random.nextInt(10, 15); //10-15 feed items per feed
+        final int headingSize = toIntSafe(req.getParameter("h"), HEADING_WORDS_COUNT);
+        final int [] descriptionSize = new int[] {
+                toIntSafe(req.getParameter("p"), DESCRIPTION_PARA_COUNT),
+                toIntSafe(req.getParameter("s"), DESCRIPTION_SENTENCE_COUNT),
+                toIntSafe(req.getParameter("w"), DESCRIPTION_WORDS_COUNT)
+        };
 
         LOGGER.info(feedSize + " feed size");
 
         final int[] feedItems = new int[feedSize];
 
-        for (int j = 0; j < feedSize; j++) {
+        for (int index = 0; index < feedSize; index++) {
 
-            final ByteBuffer heading = nextSentence(
-                    toIntSafe(req.getParameter("h"), HEADING_WORDS_COUNT),
-                    byteArrayBuffer);
+            //create heading
+            byteArrayBuffer.reset();
+            writeNextSentence(headingSize, byteArrayBuffer);
+            final int headingOffset = bufferBuilder.createString(byteArrayBuffer.toByteBuffer());
 
-            final ByteBuffer description = nextDocument(
-                    toIntSafe(req.getParameter("p"), DESCRIPTION_PARA_COUNT),
-                    toIntSafe(req.getParameter("s"), DESCRIPTION_SENTENCE_COUNT),
-                    toIntSafe(req.getParameter("w"), DESCRIPTION_WORDS_COUNT),
-                    byteArrayBuffer);
+            //create description
+            byteArrayBuffer.reset();
+            writeNextDocument(descriptionSize[0], descriptionSize[1], descriptionSize[2], byteArrayBuffer);
+            final int descriptionOffset = bufferBuilder.createString(byteArrayBuffer.toByteBuffer());
 
-            //reset position
+            //reset position for static image string
             IMAGE_URL.position(0);
 
-            feedItems[j] = FeedItem.createFeedItem(
+            feedItems[index] = FeedItem.createFeedItem(
                     bufferBuilder,
                     random.nextLong(0, Long.MAX_VALUE),
-                    bufferBuilder.createString(heading),
-                    bufferBuilder.createString(description),
+                    headingOffset,
+                    descriptionOffset,
                     System.currentTimeMillis(),
                     (byte) random.nextInt(Category.MAX),
                     bufferBuilder.createString(IMAGE_URL));

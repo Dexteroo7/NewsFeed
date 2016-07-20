@@ -19,6 +19,15 @@
         <url-pattern>/randomFeedServlet</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>RandomWordsServlet</servlet-name>
+        <servlet-class>com.ayush.newsfeed.backend.RandomWordsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RandomWordsServlet</servlet-name>
+        <url-pattern>/randomWordsServlet</url-pattern>
+    </servlet-mapping>
+
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>

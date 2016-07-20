@@ -1,49 +1,69 @@
 package com.ayush.newsfeed.common;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random;
 
 /**
  * Created by dexter on 14/06/2016.
  */
-public class RandomIterator<T> implements Iterator<T> {
+public class RandomIterator {
 
-    protected final ThreadLocalRandom random = ThreadLocalRandom.current();
-    private final LinkedList<Integer> offsets = new LinkedList<>();
-    private final T[] words;
+    private static final byte INFINITE = -1;
 
-    public RandomIterator(T[] words) {
+    private final Random random = new Random();
 
-        this.words = words;
+    private final int[] offsets;
+    private final int iterationLimit;
 
-        for (int index = 0; index < words.length; index++)
-            offsets.add(index);
+    public RandomIterator(int wordCount, int iterationLimit) {
+
+        this.offsets = new int[currentMax = wordCount];
+        this.iterationLimit = iterationLimit;
+
+        for (int index = 0; index < wordCount; index++)
+            offsets[index] = index;
     }
 
-    public RandomIterator(Collection<T> words) {
+    public RandomIterator(int wordCount) {
 
-        //noinspection unchecked
-        this.words = (T[]) words.toArray();
+        this.offsets = new int[currentMax = wordCount];
+        this.iterationLimit = INFINITE;
 
-        for (int index = 0; index < this.words.length; index++)
-            offsets.add(index);
+        for (int index = 0; index < wordCount; index++)
+            offsets[index] = index;
     }
 
-    @Override
-    public boolean hasNext() {
-        return !offsets.isEmpty();
-    }
+    private int count;
+    private int currentMax;
 
     private int getRandomIndex() {
-        return random.nextInt(0, offsets.size());
+
+        final int randomIndex = random.nextInt(currentMax);
+        final int toReturn = offsets[randomIndex];
+
+        currentMax--;
+
+        if (currentMax < 1)
+            currentMax = offsets.length; //reset
+        else
+            swap(randomIndex, currentMax);
+
+        return toReturn;
     }
 
-    @Override
-    public T next() {
+    private void swap(int a, int b) {
 
-        final int index = offsets.remove(getRandomIndex());
-        return words[index];
+        final int hold = offsets[a];
+        offsets[a] = offsets[b];
+        offsets[b] = hold;
+    }
+
+    public boolean hasNext() {
+        return iterationLimit == INFINITE || count < iterationLimit;
+    }
+
+    public int nextIndex() {
+
+        count++;
+        return getRandomIndex();
     }
 }
