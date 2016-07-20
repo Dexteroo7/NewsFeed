@@ -57,6 +57,8 @@ public abstract class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         for (index = 0; index < description.length; index++)
             description[index] = (char) descriptionBuffer.get();
 
+//        Log.i("Ayush", Arrays.toString(imageUrl) + " " + Arrays.toString(heading) + " " + Arrays.toString(description));
+
         Picasso.with(holder.image.getContext())
                 .load(String.valueOf(imageUrl))
                 .config(Bitmap.Config.RGB_565)
@@ -90,6 +92,10 @@ public abstract class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
             this.heading = (TextView) itemView.findViewById(R.id.heading);
             this.description = (TextView) itemView.findViewById(R.id.description);
             this.sourceDetails = (TextView) itemView.findViewById(R.id.sourceDetails);
+
+            heading.setBackground(null);
+            description.setBackground(null);
+            sourceDetails.setBackground(null);
         }
     }
 }

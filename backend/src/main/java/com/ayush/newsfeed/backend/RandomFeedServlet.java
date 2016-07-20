@@ -55,20 +55,24 @@ public class RandomFeedServlet extends HttpServlet {
 
         for (int j = 0; j < feedSize; j++) {
 
+            final ByteBuffer heading = nextSentence(
+                    toIntSafe(req.getParameter("h"), HEADING_WORDS_COUNT),
+                    byteArrayBuffer);
+
+            final ByteBuffer description = nextDocument(
+                    toIntSafe(req.getParameter("p"), DESCRIPTION_PARA_COUNT),
+                    toIntSafe(req.getParameter("s"), DESCRIPTION_SENTENCE_COUNT),
+                    toIntSafe(req.getParameter("w"), DESCRIPTION_WORDS_COUNT),
+                    byteArrayBuffer);
+
+            //reset position
+            IMAGE_URL.position(0);
+
             feedItems[j] = FeedItem.createFeedItem(
                     bufferBuilder,
-
                     random.nextLong(0, Long.MAX_VALUE),
-                    bufferBuilder.createString(nextSentence(
-                            toIntSafe(req.getParameter("h"), HEADING_WORDS_COUNT),
-                            byteArrayBuffer)),
-
-                    bufferBuilder.createString(nextDocument(
-                            toIntSafe(req.getParameter("p"), DESCRIPTION_PARA_COUNT),
-                            toIntSafe(req.getParameter("s"), DESCRIPTION_SENTENCE_COUNT),
-                            toIntSafe(req.getParameter("w"), DESCRIPTION_WORDS_COUNT),
-                            byteArrayBuffer)),
-
+                    bufferBuilder.createString(heading),
+                    bufferBuilder.createString(description),
                     System.currentTimeMillis(),
                     (byte) random.nextInt(Category.MAX),
                     bufferBuilder.createString(IMAGE_URL));
@@ -78,19 +82,19 @@ public class RandomFeedServlet extends HttpServlet {
         final int feed = Feed.createFeed(bufferBuilder, feedItemsOffset);
         bufferBuilder.finish(feed);
 
-//        final ByteBuffer toReturn = bufferBuilder.dataBuffer();
-//        final Feed feedLog = Feed.getRootAsFeed(toReturn);
-//        for (int index = 0; index < feedSize; index++) {
-//
-//            final FeedItem item = feedLog.feedItems(index);
-//            LOGGER.info(item.heading());
-//            LOGGER.info(item.description());
-//            LOGGER.info(item.category() + "");
-//            LOGGER.info(item.curatedOn() + "");
-//            LOGGER.info(item.imageUrl() + "");
-//            LOGGER.info(item.id() + "\n");
-//        }
-//        LOGGER.info(toReturn.toString());
+        final ByteBuffer toReturn = bufferBuilder.dataBuffer();
+        final Feed feedLog = Feed.getRootAsFeed(toReturn);
+        for (int index = 0; index < feedSize; index++) {
+
+            final FeedItem item = feedLog.feedItems(index);
+            LOGGER.info(item.heading());
+            LOGGER.info(item.description());
+            LOGGER.info(item.category() + "");
+            LOGGER.info(item.curatedOn() + "");
+            LOGGER.info(item.imageUrl() + "");
+            LOGGER.info(item.id() + "\n");
+        }
+        LOGGER.info(toReturn.toString());
 
         resp.addHeader("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0, proxy-revalidate, no-transform, private"); //do not cache
         resp.addHeader("Feed-Count", feedSize + "");
